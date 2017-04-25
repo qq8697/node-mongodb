@@ -24,11 +24,33 @@ var MovieSchema = new mongoose.Schema({
 
 // 添加方法
 // Schema.pre 
+MovieSchema.pre('save',function (next) {
+	if (this.isNew){
+		this.meta.createAt=this.meta.updateAt=Date.now()
+	}
+	else{
+		this.meta.updateAt=Date.now()
+	}
+	next()
+})
 
 // 静态方法
-
-// 取出所有数据
-
-// 查询单条数据
+MovieSchema.statics={
+	// 取出所有数据
+	fetch : function (cb) {
+		return this
+			.find({})
+			.sort('meta.updateAt')
+			.exec(cb)
+	},
+	// 查询单条数据
+	findById :function (id,cb) {
+		// console.log('id的值为：',id)
+		return this
+			.findOne({_id:id})
+			.exec(cb)
+	}
+}
 
 // 模式导出
+module.exports=MovieSchema
